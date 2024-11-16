@@ -22,24 +22,29 @@ PlayerListener.players = {};
 --- @param player IsoPlayer
 --- @param username string
 local function onLogin(player, username)
+
     if PlayerListener.players[username] ~= nil then
         return
     end
 
     PlayerListener.players[username] = player;
     triggerEvent('OnServerPlayerLogin', player);
+
 end
 
 ---@param username string
 local function onLogout(username)
+
     local player = PlayerListener.players[username];
     if player == nil then return end
 
     PlayerListener.players[username] = nil;
     triggerEvent('OnServerPlayerLogout', player);
+
 end
 
 Events.OnServerStarted.Add(function()
+
     local toRemove = {};
     local timeNow;
     local timeLast = 0;
@@ -48,6 +53,7 @@ Events.OnServerStarted.Add(function()
     local found;
 
     Events.OnTickEvenPaused.Add(function()
+
         timeNow = getTimeInMillis();
 
         -- Only run once every 5 seconds.
@@ -62,34 +68,52 @@ Events.OnServerStarted.Add(function()
         -- Look for players that have logged in since the last check.
         size = playersOnline:size();
         for i = 0, size - 1, 1 do
+            
             local nextPlayer = playersOnline:get(i);
             username = nextPlayer:getUsername();
             player = PlayerListener.players[username];
-            if player == nil then onLogin(nextPlayer, username) end
+            
+            if player == nil then
+                onLogin(nextPlayer, username)
+            end
+        
         end
 
         -- Look for players that are no longer online.
         for _username, _ in pairs(PlayerListener.players) do
+
             found = false;
+            
             for i = 0, size - 1, 1 do
+            
                 local nextPlayer = playersOnline:get(i);
+            
                 if _username == nextPlayer:getUsername() then
                     found = true;
                     break;
                 end
+            
             end
-            if not found then table.insert(toRemove, _username) end
+            
+            if not found then 
+                table.insert(toRemove, _username)
+            end
+
         end
 
         -- Handle logged out players. (If any)
         if #toRemove ~= 0 then
+
             for _, _username in ipairs(toRemove) do
                 onLogout(_username);
             end
+        
         end
 
         toRemove = {};
+    
     end);
+
 end);
 
 LuaEventManager.AddEvent('OnServerPlayerLogin');

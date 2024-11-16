@@ -6,6 +6,8 @@
 --- @author JabDoesThings, asledgehammer 2023
 ---]]
 
+local readonly = require 'asledgehammer/util/readonly';
+
 local BITS = 32;
 
 --- @class bite
@@ -21,27 +23,6 @@ local BITS = 32;
 --- @field tohex fun(value): string
 --- @field rol fun(a, b): number
 --- @field test fun(): void Tests 'bite' with 'bitlib' to see if the same results occur.
-
-local readonly = function(table)
-    local meta = getmetatable(table) or {};
-    return setmetatable({}, {
-        __index     = table,
-        __newindex  = function() error("Attempt to modify read-only class.", 2) end,
-        __metatable = false,
-        __add       = meta.__add,
-        __sub       = meta.__sub,
-        __mul       = meta.__mul,
-        __div       = meta.__div,
-        __mod       = meta.__mod,
-        __pow       = meta.__pow,
-        __eq        = meta.__eq,
-        __lt        = meta.__lt,
-        __le        = meta.__le,
-        __concat    = meta.__concat,
-        __call      = meta.__call,
-        __tostring  = meta.__tostring
-    });
-end
 
 local HEX_BIN_DICTIONARY = {
     ['0'] = '0000',
@@ -176,7 +157,7 @@ end
 --- @param mask number Either a number or NumberTable.
 ---
 --- @return number result The calculated result.
-bite.band = function(value, mask) end
+bite.band = function(value, mask) return 0 end
 
 --- Calculates the 'OR' bitwise operation for two signed values.
 ---
@@ -184,7 +165,7 @@ bite.band = function(value, mask) end
 --- @param mask number Either a number or NumberTable.
 ---
 --- @return number result The calculated result.
-bite.bor = function(value, mask) end
+bite.bor = function(value, mask) return 0 end
 
 --- Calculates the 'XOR' bitwise operation for two signed values.
 ---
@@ -192,14 +173,14 @@ bite.bor = function(value, mask) end
 --- @param mask number Either a number or NumberTable.
 ---
 --- @return number result The calculated result.
-bite.bxor = function(value, mask) end
+bite.bxor = function(value, mask) return 0 end
 
 --- Calculates the 'NOT' bitwise operation for two signed values.
 ---
 --- @param value number Either a number or NumberTable.
 ---
 --- @return number result The calculated result.
-bite.bnot = function(value) end
+bite.bnot = function(value) return 0 end
 
 --- Shifts a value's bits to the left. ( x << y )
 ---
@@ -207,7 +188,7 @@ bite.bnot = function(value) end
 --- @param offset number The number of bits to shift to the left.
 ---
 --- @return number result The calculated result.
-bite.lshift = function(value, offset) end
+bite.lshift = function(value, offset) return 0 end
 
 --- Shifts a value's bits to the right. ( x >> y )
 ---
@@ -215,7 +196,7 @@ bite.lshift = function(value, offset) end
 --- @param offset number The number of bits to shift to the left.
 ---
 --- @return number result The calculated result.
-bite.rshift = function(value, offset) end
+bite.rshift = function(value, offset) return 0 end
 
 --- Shifts a value's bits to the right. ( x >>> y )
 ---
@@ -223,7 +204,7 @@ bite.rshift = function(value, offset) end
 --- @param offset number The number of bits to shift to the left.
 ---
 --- @return number result The calculated result.
-bite.arshift = function(value, offset) end
+bite.arshift = function(value, offset) return 0 end
 
 
 if BitwiseOps then

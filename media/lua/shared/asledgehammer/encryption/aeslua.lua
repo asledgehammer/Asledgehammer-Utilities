@@ -3,11 +3,12 @@
 --- 
 --- I also added support for coroutine async-like support.
 --- 
+--- NOTE: This is very very very VERY slow. I will keep this around for anyone who might need this level of encryption.
+--- 
 --- @author Roblox-modder, asledgehammer, JabDoesThings 2024
 ---]]
 
 local bit = require 'asledgehammer/util/bite';
-local JSON = require 'asledgehammer/util/json';
 
 local aeslua = {};
 local buffer = {};
@@ -161,13 +162,9 @@ end
 
 function private.properlyDecrypted(data)
     local random = { string.byte(data, 1, 4) };
-
-    print('random = ' .. JSON.stringify(random));
-
     if (random[1] == random[3] and random[2] == random[4]) then
         return true;
     end
-
     return false;
 end
 
