@@ -2,7 +2,7 @@
 --- @author asledgehammer, JabDoesThings, 2024
 ---]]
 
-local bite = require 'asledgehammer/util/bite';
+local bite = require 'asledgehammer/math/bite';
 
 if BitwiseOps ~= nil then -- CraftHammer API
     local bit = {

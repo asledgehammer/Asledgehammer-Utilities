@@ -8,7 +8,7 @@
 --- @author Roblox-modder, asledgehammer, JabDoesThings 2024
 ---]]
 
-local bit = require 'asledgehammer/util/bite';
+local bit = require 'asledgehammer/math/bite';
 
 local aeslua = {};
 local buffer = {};

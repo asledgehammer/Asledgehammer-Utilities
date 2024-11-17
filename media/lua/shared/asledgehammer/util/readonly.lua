@@ -27,7 +27,7 @@ return function(table)
     meta = getmetatable(table) or {};
     return setmetatable({}, {
         __index     = table,
-        __newindex  = function() error("Attempt to modify read-only class.", 2) end,
+        __newindex  = function() error('Attempt to modify read-only object.', 2) end,
         __metatable = false,
         __add       = meta.__add,
         __sub       = meta.__sub,

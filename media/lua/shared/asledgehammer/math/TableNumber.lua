@@ -4,6 +4,7 @@ local TableNumber = {};
 ---
 --- @param value number|table
 --- @param name string? (Default is 'value')
+---
 --- @return number value
 TableNumber.getValue = function(value, name)
     if not name then name = 'value' end
@@ -19,6 +20,7 @@ TableNumber.getValue = function(value, name)
 end
 
 --- @param value number|table The value to test. (Must be a number or TableNumber)
+---
 --- @return number The number of bits the value needs to store itself.
 function TableNumber.getBitCount(value)
     local sType = type(value);
@@ -39,8 +41,9 @@ function TableNumber.getBitCount(value)
     return 64;
 end
 
----@param value any The value to check, preferably a table.
----@return boolean result True if the value is a NumberTable.
+--- @param value any The value to check, preferably a table.
+---
+--- @return boolean result True if the value is a NumberTable.
 function TableNumber.isTableNumber(value)
     return type(value) == 'table' and value.__table_number;
 end

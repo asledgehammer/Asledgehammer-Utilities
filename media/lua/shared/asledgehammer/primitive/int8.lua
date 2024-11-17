@@ -3,8 +3,8 @@
 ---]]
 
 local readonly    = require 'asledgehammer/util/readonly';
-local bite        = require 'asledgehammer/util/bite';
-local TableNumber = require 'asledgehammer/util/TableNumber';
+local bite        = require 'asledgehammer/math/bite';
+local TableNumber = require 'asledgehammer/math/TableNumber';
 local s_and       = bite.s_and;
 local s_nand      = bite.s_nand;
 local s_or        = bite.s_or;
