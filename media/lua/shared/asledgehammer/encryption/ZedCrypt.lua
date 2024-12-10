@@ -1,4 +1,4 @@
----[[ 
+---[[
 --- @author JabDoesThings, asledgehammer 2024
 ---]]
 
@@ -13,7 +13,7 @@ if isServer() then
 end
 
 --- @param str string
---- 
+---
 --- @return number[]
 local function expand(str)
     local a = {};
@@ -25,7 +25,7 @@ local ZedCrypt = {};
 
 --- @param data string
 --- @param key string
---- 
+---
 --- @return string
 function ZedCrypt.encrypt(data, key)
     local a = '';
@@ -41,15 +41,15 @@ function ZedCrypt.encrypt(data, key)
         a = a .. f;
     end
     return a;
+    -- return data;
 end
 
 --- @param data string
 --- @param key string
 --- @param steps number (Default: 128 steps per tick)
---- 
+---
 --- @return thread
 function ZedCrypt.encryptAsync(data, key, steps)
-
     steps = steps or DEFAULT_STEPS;
 
     local routine = function()
@@ -70,17 +70,18 @@ function ZedCrypt.encryptAsync(data, key, steps)
             h = h + 1;
             if h == steps then
                 h = 0;
-                coroutine.yield();
+                -- coroutine.yield();
             end
         end
         return a;
+        -- return data;
     end
     return coroutine.create(routine);
 end
 
 --- @param data string
 --- @param key string
---- 
+---
 --- @return string
 function ZedCrypt.decrypt(data, key)
     local a = '';
@@ -96,15 +97,15 @@ function ZedCrypt.decrypt(data, key)
         a = a .. f;
     end
     return a;
+    -- return data;
 end
 
 --- @param data string
 --- @param key string
 --- @param steps number (Default: 128 steps per tick)
---- 
+---
 --- @return thread
 function ZedCrypt.decryptAsync(data, key, steps)
-
     steps = steps or DEFAULT_STEPS;
 
     local routine = function()
@@ -125,14 +126,14 @@ function ZedCrypt.decryptAsync(data, key, steps)
             h = h + 1;
             if h == steps then
                 h = 0;
-                coroutine.yield();
+                -- coroutine.yield();
             end
         end
         return a;
+        -- return data;
     end
 
     return coroutine.create(routine);
-
 end
 
 return readonly(ZedCrypt);
