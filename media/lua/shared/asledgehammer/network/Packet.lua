@@ -6,6 +6,64 @@ local JSON = require 'asledgehammer/util/json';
 local class = require 'asledgehammer/util/class';
 local ZedCrypt = require 'asledgehammer/encryption/ZedCrypt';
 
+--- @type number
+---
+--- The maximum length in characters a string can be in a serialized KahluaTable.
+local MAX_STRING_LENGTH = 15644;
+
+--- @param data string
+---
+--- @return string[]|string
+local postProcessEncryption = function(data)
+    -- Ensure that the data is a string.
+
+    assert(data ~= nil, 'The data provided is nil.');
+    assert(type(data) == 'string', 'The data provided isn\'t a string. (Given: ' .. type(data) .. ')');
+
+    -- If the data is less than the maximum string-length in a serialized KahluaTable, do nothing.
+    if #data <= MAX_STRING_LENGTH then
+        return data;
+    end
+
+    -- From here we grab the count of chunks and split up the string into chunks in an array.
+
+    local CHUNK_LENGTH = MAX_STRING_LENGTH;
+    local chunks = {};
+    local chunkCount = math.ceil(#data / CHUNK_LENGTH);
+
+    for c = 1, chunkCount do
+        local chunk = string.sub(data,
+            ((c - 1) * CHUNK_LENGTH) + 1, math.min(c * CHUNK_LENGTH, #data));
+        table.insert(chunks, chunk);
+    end
+
+    return chunks;
+end
+
+--- @param data string[]|string
+---
+--- @return string
+local preProcessDecryption = function(data)
+    -- In this case, the string is less than chunk-size, so it's in a original state.
+    if type(data) == 'string' then
+        return data;
+    end
+
+    -- From here we assert that the data is a chunked string.
+
+    assert(type(data) == 'table', 'The data provided isn\'t a table. (Given: ' .. type(data) .. ')');
+    assert(#data ~= 0, 'The data provided isn\'t a table-array.');
+
+    -- Build each chunk into a complete string.
+
+    local built = '';
+    for i = 1, #data do
+        built = built .. data[i];
+    end
+
+    return built;
+end
+
 --- @class Packet
 --- @field module string
 --- @field command string
@@ -17,11 +75,10 @@ local Packet = class(
 --- @param command string
 --- @param data table | nil
     function(ins, module, command, data)
-        
         if data == nil then
             data = {};
         end
-        
+
         ins.module = module;
         ins.command = command;
         ins.data = data;
@@ -105,17 +162,14 @@ function Packet:encrypt(key, callback, options)
     encryption.data._.command = self.command;
 
     if options.priority == Packet.PRIORITY_IMMEDIATE then
-
         -- Immediately swap out the table for its serialized and encrypted counterpart.
-        encryption.data._ = ZedCrypt.encrypt(JSON.stringify(encryption.data._), key);
+        encryption.data._ = postProcessEncryption(ZedCrypt.encrypt(JSON.stringify(encryption.data._), key));
 
         self.encrypted = encryption;
 
         -- Invoke callback.
         if callback then callback(self) end
-
     elseif options.priority == Packet.PRIORITY_NORMAL then
-
         self.thread = ZedCrypt.encryptAsync(JSON.stringify(encryption.data._), key);
 
         --- @type fun(): void | nil
@@ -125,7 +179,6 @@ function Packet:encrypt(key, callback, options)
         local threadResult = nil;
 
         onTick = function()
-
             if coroutine.status(self.thread) ~= 'dead' then
                 local success, result = coroutine.resume(self.thread);
 
@@ -141,7 +194,6 @@ function Packet:encrypt(key, callback, options)
 
                 -- If a result is returned then assign it.
                 threadResult = result;
-
             else
                 print('[WARNING]: Packet:encrypt() coroutine died unexpectedly without result!!!');
                 print(tostring(threadResult));
@@ -154,7 +206,7 @@ function Packet:encrypt(key, callback, options)
             Events.OnTickEvenPaused.Remove(onTick);
 
             -- Set the packet's encrypted data.
-            encryption.data._ = threadResult;
+            encryption.data._ = postProcessEncryption(threadResult);
             self.encrypted = encryption;
             self.thread = nil;
 
@@ -163,7 +215,6 @@ function Packet:encrypt(key, callback, options)
         end
 
         Events.OnTickEvenPaused.Add(onTick);
-
     end
 end
 
@@ -191,6 +242,8 @@ function Packet:decrypt(key, callback)
     --- @type PacketEncryptionOptions
     local options = encrypted.options;
 
+    encrypted._ = preProcessDecryption(encrypted._);
+
     if options.priority == Packet.PRIORITY_IMMEDIATE then
         local _ = JSON.parse(ZedCrypt.decrypt(encrypted._, key));
 
@@ -202,7 +255,6 @@ function Packet:decrypt(key, callback)
 
         -- Invoke callback.
         if callback then callback(self) end
-
     elseif options.priority == Packet.PRIORITY_NORMAL then
         self.thread = ZedCrypt.decryptAsync(encrypted._, key);
 
@@ -228,7 +280,6 @@ function Packet:decrypt(key, callback)
 
                 -- If a result is returned then assign it.
                 threadResult = result;
-
             else
                 print('[WARNING]: Packet:decrypt() coroutine died unexpectedly without result!!!');
                 print(tostring(threadResult));
@@ -257,7 +308,6 @@ function Packet:decrypt(key, callback)
         end
 
         Events.OnTickEvenPaused.Add(onTick);
-
     end
 end
 
