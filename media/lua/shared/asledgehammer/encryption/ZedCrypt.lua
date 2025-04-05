@@ -17,7 +17,7 @@ end
 --- @return number[]
 local function expand(str)
     local a = {};
-    for b = 1, #str, 1 do table.insert(a, string.byte(string.sub(str, b, b))) end
+    for b = 1, #str, 1 do table.insert(a, string.byte(string.sub(str, b, b)) + 255) end
     return a;
 end
 

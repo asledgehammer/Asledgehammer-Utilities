@@ -1,16 +1,16 @@
 local CHAR_SEQUENCE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
 
-if not instanceof then
-    math.randomseed(os.time());
-end
-
 --- Scrambles a random set of characters between a minimum and maximum length.
 ---
 --- @param minChars number The minimum (or exact) number of characters to generate.
 --- @param maxChars? number (Optional) The maximum number of characters to generate.
+--- @param rand? Random (Optional) The random object to sample.
 ---
 --- @return string result The result-generated characters.
-return function(minChars, maxChars)
+return function(minChars, maxChars, rand)
+    if not rand then
+        rand = newrandom();
+    end
     -- Set if optional.
     if not maxChars then
         maxChars = minChars;
@@ -26,33 +26,18 @@ return function(minChars, maxChars)
     local result = '';
     --- @type number
     local sequenceLength = #CHAR_SEQUENCE;
-    -- (Non-PZ Code)
-    if not ZombRand then
-        math.random(5);
-    end
     --- The generated length of the scrambled result.
     ---
     --- @type number
     local lengthChars = minChars;
     if maxChars > minChars then
         local deltaChars = maxChars - minChars;
-        if not ZombRand then
-            -- (Non-PZ Code)
-            local noise = math.random(deltaChars);
-            lengthChars = minChars + noise;
-        else
-            lengthChars = minChars + math.floor(ZombRand(deltaChars));
-        end
+        lengthChars = minChars + math.floor(rand:random(1, deltaChars));
     end
     for _ = 1, lengthChars do
         --- @type number
         local index = 0;
-        if ZombRand then
-            index = math.floor(ZombRand(sequenceLength));
-        else
-            -- (Non-PZ Code)
-            index = math.random(sequenceLength);
-        end
+        index = math.floor(rand:random(sequenceLength));
         result = result .. string.sub(CHAR_SEQUENCE, index, index);
     end
     return result;

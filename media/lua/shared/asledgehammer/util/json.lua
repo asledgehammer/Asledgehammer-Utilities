@@ -25,11 +25,13 @@
 
 local json = { _version = "0.1.2" }
 
+local isValid = require 'asledgehammer/util/jsonvalidator';
+
 -------------------------------------------------------------------------------
 -- Encode
 -------------------------------------------------------------------------------
 
-local encodes
+local encode;
 
 local escape_char_map = {
     ["\\"] = "\\",
@@ -361,6 +363,9 @@ parse = function(str, idx)
     decode_error(str, idx, "unexpected character '" .. chr .. "'")
 end
 
+--- @param str string
+---
+--- @return table
 function json.parse(str)
     if type(str) ~= "string" then
         error("expected argument of type string, got " .. type(str))
@@ -373,4 +378,11 @@ function json.parse(str)
     return res
 end
 
-return json
+--- @param str string
+---
+--- @return boolean result True if valid JSON.
+function json.validate(str)
+    return isValid(str);
+end
+
+return json;

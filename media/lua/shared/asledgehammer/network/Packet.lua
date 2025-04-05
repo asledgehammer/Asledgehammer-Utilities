@@ -15,22 +15,16 @@ local MAX_STRING_LENGTH = 15644;
 ---
 --- @return string[]|string
 local postProcessEncryption = function(data)
-    -- Ensure that the data is a string.
-
     assert(data ~= nil, 'The data provided is nil.');
     assert(type(data) == 'string', 'The data provided isn\'t a string. (Given: ' .. type(data) .. ')');
 
     -- If the data is less than the maximum string-length in a serialized KahluaTable, do nothing.
-    if #data <= MAX_STRING_LENGTH then
-        return data;
-    end
+    if #data <= MAX_STRING_LENGTH then return data end
 
-    -- From here we grab the count of chunks and split up the string into chunks in an array.
-
+    -- Calculate the count of chunks and split up the string into chunks in an array.
     local CHUNK_LENGTH = MAX_STRING_LENGTH;
     local chunks = {};
     local chunkCount = math.ceil(#data / CHUNK_LENGTH);
-
     for c = 1, chunkCount do
         local chunk = string.sub(data,
             ((c - 1) * CHUNK_LENGTH) + 1, math.min(c * CHUNK_LENGTH, #data));
@@ -45,21 +39,14 @@ end
 --- @return string
 local preProcessDecryption = function(data)
     -- In this case, the string is less than chunk-size, so it's in a original state.
-    if type(data) == 'string' then
-        return data;
-    end
-
-    -- From here we assert that the data is a chunked string.
+    if type(data) == 'string' then return data end
 
     assert(type(data) == 'table', 'The data provided isn\'t a table. (Given: ' .. type(data) .. ')');
     assert(#data ~= 0, 'The data provided isn\'t a table-array.');
 
     -- Build each chunk into a complete string.
-
     local built = '';
-    for i = 1, #data do
-        built = built .. data[i];
-    end
+    for i = 1, #data do built = built .. data[i] end
 
     return built;
 end
@@ -68,21 +55,20 @@ end
 --- @field module string
 --- @field command string
 --- @field data table | nil
---- @field encrypted table
+--- @field encrypted table | nil
+--- @field valid boolean
 local Packet = class(
 --- @param ins table
 --- @param module string
 --- @param command string
 --- @param data table | nil
     function(ins, module, command, data)
-        if data == nil then
-            data = {};
-        end
-
+        if not data then data = {} end
         ins.module = module;
         ins.command = command;
         ins.data = data;
         ins.encrypted = nil;
+        ins.valid = true;
     end
 );
 
@@ -125,7 +111,21 @@ function Packet:sendToServer()
     end
 end
 
+--- @param key string
+--- @param player IsoPlayer
 ---
+--- @return void
+function Packet:encryptAndSendToPlayer(key, player)
+    self:encrypt(key, function() self:sendToPlayer(player) end);
+end
+
+--- @param key string
+---
+--- @return void
+function Packet:encryptAndSendToServer(key)
+    self:encrypt(key, function() self:sendToServer() end);
+end
+
 --- @param key string
 --- @param callback PacketCallback | nil
 --- @param options PacketEncryptionOptions | nil
@@ -244,15 +244,20 @@ function Packet:decrypt(key, callback)
 
     encrypted._ = preProcessDecryption(encrypted._);
 
+    -- Until properly validated, the packet is now set to an invalid state.
+    self.valid = false;
+
     if options.priority == Packet.PRIORITY_IMMEDIATE then
-        local _ = JSON.parse(ZedCrypt.decrypt(encrypted._, key));
-
-        -- Swap out the command if stored in encryption.
-        self.command = _.command;
-        _.command = nil;
-
-        self.data = _;
-
+        local payload = ZedCrypt.decrypt(encrypted._, key);
+        local isValid = JSON.validate(payload);
+        if isValid then
+            local _ = JSON.parse(ZedCrypt.decrypt(payload, key));
+            -- Swap out the command if stored in encryption.
+            self.command = _.command;
+            _.command = nil;
+            self.data = _;
+            self.valid = true;
+        end
         -- Invoke callback.
         if callback then callback(self) end
     elseif options.priority == Packet.PRIORITY_NORMAL then
@@ -291,16 +296,19 @@ function Packet:decrypt(key, callback)
 
             Events.OnTickEvenPaused.Remove(onTick);
 
-            local _ = JSON.parse(threadResult);
-
-            -- Swap out the command if stored in encryption.
-            if _.command ~= nil then
-                self.command = _.command;
-                _.command = nil;
+            local isValid = JSON.validate(threadResult);
+            if isValid then
+                local _ = JSON.parse(threadResult);
+                -- Swap out the command if stored in encryption.
+                if _.command ~= nil then
+                    self.command = _.command;
+                    _.command = nil;
+                end
+                self.data = _;
+                self.valid = true;
             end
 
             self.encrypted = self.data;
-            self.data = _;
             self.thread = nil;
 
             -- Invoke callback.
@@ -319,7 +327,8 @@ function Packet:toJSON()
         module = self.module,
         command = self.command,
         data = self.data,
-        encrypted = self.encrypted
+        encrypted = self.encrypted,
+        valid = self.valid
     });
 end
 
