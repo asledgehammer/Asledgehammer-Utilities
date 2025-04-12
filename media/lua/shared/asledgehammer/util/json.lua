@@ -25,8 +25,6 @@
 
 local json = { _version = "0.1.2" }
 
-local isValid = require 'asledgehammer/util/jsonvalidator';
-
 -------------------------------------------------------------------------------
 -- Encode
 -------------------------------------------------------------------------------
@@ -382,7 +380,8 @@ end
 ---
 --- @return boolean result True if valid JSON.
 function json.validate(str)
-    return isValid(str);
+    local result = pcall(function () json.parse(str) end);
+    return result;
 end
 
 return json;

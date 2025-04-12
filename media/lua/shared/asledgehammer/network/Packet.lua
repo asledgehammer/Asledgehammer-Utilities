@@ -131,6 +131,7 @@ end
 --- @param options PacketEncryptionOptions | nil
 function Packet:encrypt(key, callback, options)
     assert(key ~= nil, 'The given key is nil!');
+    assert(type(key) == 'string', 'The given key is not a string!');
 
     if callback then
         assert(type(callback) == 'function', 'Callback is not a function!');
@@ -179,14 +180,15 @@ function Packet:encrypt(key, callback, options)
         local threadResult = nil;
 
         onTick = function()
-            if coroutine.status(self.thread) ~= 'dead' then
+            local status = coroutine.status(self.thread);
+            if status ~= 'dead' and status ~= "normal" then
                 local success, result = coroutine.resume(self.thread);
 
                 -------------------------------------
                 -- Handle failure of the thread here.
                 if not success then
-                    error(result);
                     Events.OnTickEvenPaused.Remove(onTick);
+                    error(result);
                     self.thread = nil;
                     return;
                 end
@@ -222,6 +224,7 @@ end
 --- @param callback PacketCallback | nil
 function Packet:decrypt(key, callback)
     assert(key ~= nil, 'The given key is nil!');
+    assert(type(key) == 'string', 'The given key is not a string!');
 
     if callback then
         assert(type(callback) == 'function', 'Callback is not a function!');
@@ -270,14 +273,15 @@ function Packet:decrypt(key, callback)
         local threadResult = nil;
 
         onTick = function()
-            if coroutine.status(self.thread) ~= 'dead' then
+            local status = coroutine.status(self.thread);
+            if status ~= 'dead' and status ~= 'normal' then
                 local success, result = coroutine.resume(self.thread);
 
                 -------------------------------------
                 -- Handle failure of the thread here.
                 if not success then
-                    error(result);
                     Events.OnTickEvenPaused.Remove(onTick);
+                    error(result);
                     self.thread = nil;
                     return;
                 end
