@@ -5,7 +5,7 @@
 ---
 --- @param base table|function
 --- @param init function?
-local class = function(base, init)
+return function(base, init)
     local c = {} -- a new class instance
     if not init and type(base) == 'function' then
         init = base
@@ -48,5 +48,3 @@ local class = function(base, init)
     setmetatable(c, mt)
     return c
 end
-
-return class;

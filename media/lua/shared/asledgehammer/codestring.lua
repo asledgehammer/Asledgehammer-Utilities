@@ -1,6 +1,8 @@
 --- MARK: Constants
 --- @alias IndexRange [number, number]
 
+local readonly = require 'asledgehammer/util/readonly';
+
 --- [Open Block] -> [Not Close Block]* -> [Close Block]
 local STRING_PATTERN_BLOCK_COMMENT = '%-[%-]+%[%[' .. '.*' .. '%-[%-]+%]%]';
 local STRING_PATTERN_LINE_COMMENT = '%-[%-]+[^\n]*\n';
@@ -423,4 +425,4 @@ if not instanceof then
     print(loadstring(deCode)());
 end
 
-return codestring;
+return readonly(codestring);

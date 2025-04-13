@@ -25,6 +25,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ]]
 
+local readonly = require 'asledgehammer/util/readonly';
+
 -- eyecandy to increase readability for empty if branches and keep luacheck happy
 local function do_nothing() end
 
@@ -3019,33 +3021,4 @@ function minify.beautify(code)
     return PrintAst(ast);
 end
 
--- DEBUG CODE
---
--- if not instanceof then
---     -- see if the file exists
---     local function file_exists(file)
---         local f = io.open(file, "rb")
---         if f then f:close() end
---         return f ~= nil
---     end
---     -- get all lines from a file, returns an empty
---     -- list/table if the file does not exist
---     local function lines_from(file)
---         if not file_exists(file) then return {} end
---         local lines = {}
---         for line in io.lines(file) do
---             lines[#lines + 1] = line
---         end
---         return lines
---     end
---     -- tests the functions above
---     local file = 'C:/Users/jabdo/Zomboid/Lua/ModLoader/mods/EtherHammerX/client.lua';
---     local lines = lines_from(file);
---     local code = table.concat(lines, '\n');
---     local deCode = minify.minify(code);
---     print('result: ');
---     print(deCode);
---     print(loadstring(deCode)());
--- end
-
-return minify;
+return readonly(minify);

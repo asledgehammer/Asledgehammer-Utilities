@@ -44,7 +44,6 @@ function ZedCrypt.encrypt(data, key)
         a = a .. f;
     end
     return a;
-    -- return data;
 end
 
 --- @param data string
@@ -54,7 +53,6 @@ end
 --- @return thread
 function ZedCrypt.encryptAsync(data, key, steps)
     steps = steps or DEFAULT_STEPS;
-
     local routine = function()
         local a = '';
         local b = 1;
@@ -68,16 +66,12 @@ function ZedCrypt.encryptAsync(data, key, steps)
             local g = string.byte(f);
             f = string.char(g + e);
             a = a .. f;
-
-            -- (Coroutine step)
             h = h + 1;
             if h == steps then
                 h = 0;
-                -- coroutine.yield();
             end
         end
         return a;
-        -- return data;
     end
     return coroutine.create(routine);
 end
@@ -100,7 +94,6 @@ function ZedCrypt.decrypt(data, key)
         a = a .. f;
     end
     return a;
-    -- return data;
 end
 
 --- @param data string
@@ -110,7 +103,6 @@ end
 --- @return thread
 function ZedCrypt.decryptAsync(data, key, steps)
     steps = steps or DEFAULT_STEPS;
-
     local routine = function()
         local a = '';
         local b = 1;
@@ -124,18 +116,13 @@ function ZedCrypt.decryptAsync(data, key, steps)
             local g = string.byte(f);
             f = string.char(g - e);
             a = a .. f;
-
-            -- (Coroutine step)
             h = h + 1;
             if h == steps then
                 h = 0;
-                -- coroutine.yield();
             end
         end
         return a;
-        -- return data;
     end
-
     return coroutine.create(routine);
 end
 

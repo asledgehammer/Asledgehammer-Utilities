@@ -11,6 +11,8 @@
 --- 
 ---]]
 
+local readonly = require 'asledgehammer/util/readonly';
+
 -- Only run on servers.
 if isClient() or not isServer() then return end
 
@@ -119,4 +121,4 @@ end);
 LuaEventManager.AddEvent('OnServerPlayerLogin');
 LuaEventManager.AddEvent('OnServerPlayerLogout');
 
-return PlayerListener;
+return readonly(PlayerListener);

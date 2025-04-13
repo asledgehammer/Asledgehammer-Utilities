@@ -4,6 +4,7 @@
 
 local JSON = require 'asledgehammer/util/json';
 local class = require 'asledgehammer/util/class';
+local readonly = require 'asledgehammer/util/readonly';
 local ZedCrypt = require 'asledgehammer/encryption/ZedCrypt';
 
 --- @type number
@@ -336,4 +337,4 @@ function Packet:toJSON()
     });
 end
 
-return Packet;
+return readonly(Packet);

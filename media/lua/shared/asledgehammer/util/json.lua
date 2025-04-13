@@ -23,6 +23,8 @@
 -- SOFTWARE.
 --
 
+local readonly = require 'asledgehammer/util/readonly';
+
 local json = { _version = "0.1.2" }
 
 -------------------------------------------------------------------------------
@@ -384,4 +386,4 @@ function json.validate(str)
     return result;
 end
 
-return json;
+return readonly(json);

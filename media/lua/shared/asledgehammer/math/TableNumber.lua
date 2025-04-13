@@ -1,3 +1,5 @@
+local readonly = require 'asledgehammer/util/readonly';
+
 local TableNumber = {};
 
 --- Grabs the value from a TableNumber or returns the value as a number.
@@ -48,4 +50,4 @@ function TableNumber.isTableNumber(value)
     return type(value) == 'table' and value.__table_number;
 end
 
-return TableNumber;
+return readonly(TableNumber);
