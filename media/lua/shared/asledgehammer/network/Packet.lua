@@ -5,6 +5,7 @@
 local JSON = require 'asledgehammer/util/json';
 local class = require 'asledgehammer/util/class';
 local readonly = require 'asledgehammer/util/readonly';
+
 local ZedCrypt = require 'asledgehammer/encryption/ZedCrypt';
 
 --- @type number
@@ -52,12 +53,6 @@ local preProcessDecryption = function(data)
     return built;
 end
 
---- @class Packet
---- @field module string
---- @field command string
---- @field data table | nil
---- @field encrypted table | nil
---- @field valid boolean
 local Packet = class(
 --- @param ins table
 --- @param module string
@@ -93,8 +88,6 @@ Packet.DEFAULT_ENCRYPTION_OPTIONS = {
 };
 
 --- @param player IsoPlayer
----
---- @return void
 function Packet:sendToPlayer(player)
     if self.encrypted ~= nil then
         sendServerCommand(player, self.module, '_', self.encrypted.data);
@@ -103,7 +96,6 @@ function Packet:sendToPlayer(player)
     end
 end
 
---- @return void
 function Packet:sendToServer()
     if self.encrypted ~= nil then
         sendClientCommand(self.module, '_', self.encrypted.data);
@@ -114,15 +106,11 @@ end
 
 --- @param key string
 --- @param player IsoPlayer
----
---- @return void
 function Packet:encryptAndSendToPlayer(key, player)
     self:encrypt(key, function() self:sendToPlayer(player) end);
 end
 
 --- @param key string
----
---- @return void
 function Packet:encryptAndSendToServer(key)
     self:encrypt(key, function() self:sendToServer() end);
 end

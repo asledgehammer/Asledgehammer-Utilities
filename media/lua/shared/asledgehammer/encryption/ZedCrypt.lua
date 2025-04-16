@@ -48,7 +48,7 @@ end
 
 --- @param data string
 --- @param key string
---- @param steps number (Default: 128 steps per tick)
+--- @param steps? number (Default: 128 steps per tick)
 ---
 --- @return thread
 function ZedCrypt.encryptAsync(data, key, steps)
@@ -69,6 +69,7 @@ function ZedCrypt.encryptAsync(data, key, steps)
             h = h + 1;
             if h == steps then
                 h = 0;
+                coroutine.yield();
             end
         end
         return a;
@@ -98,7 +99,7 @@ end
 
 --- @param data string
 --- @param key string
---- @param steps number (Default: 128 steps per tick)
+--- @param steps? number (Default: 128 steps per tick)
 ---
 --- @return thread
 function ZedCrypt.decryptAsync(data, key, steps)
@@ -119,6 +120,7 @@ function ZedCrypt.decryptAsync(data, key, steps)
             h = h + 1;
             if h == steps then
                 h = 0;
+                coroutine.yield();
             end
         end
         return a;
@@ -126,4 +128,7 @@ function ZedCrypt.decryptAsync(data, key, steps)
     return coroutine.create(routine);
 end
 
-return readonly(ZedCrypt);
+
+--- @type ZedCrypt
+local module = readonly(ZedCrypt);
+return module;

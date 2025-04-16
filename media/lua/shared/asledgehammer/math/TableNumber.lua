@@ -4,10 +4,10 @@ local TableNumber = {};
 
 --- Grabs the value from a TableNumber or returns the value as a number.
 ---
---- @param value number|table
+--- @param value number|table Either a native Lua number or a TableNumber-stored value.
 --- @param name string? (Default is 'value')
 ---
---- @return number value
+--- @return number value The native Lua number representing the TableNumber's stored value.
 TableNumber.getValue = function(value, name)
     if not name then name = 'value' end
     if type(value) == 'table' then
@@ -23,7 +23,7 @@ end
 
 --- @param value number|table The value to test. (Must be a number or TableNumber)
 ---
---- @return number The number of bits the value needs to store itself.
+--- @return number bitCount The number of bits the value needs to store itself.
 function TableNumber.getBitCount(value)
     local sType = type(value);
     if sType ~= 'number' and sType ~= table then
@@ -50,4 +50,6 @@ function TableNumber.isTableNumber(value)
     return type(value) == 'table' and value.__table_number;
 end
 
-return readonly(TableNumber);
+--- @type TableNumber
+local module = readonly(TableNumber);
+return module;

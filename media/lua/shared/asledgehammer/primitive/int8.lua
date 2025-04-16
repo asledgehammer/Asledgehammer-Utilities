@@ -20,22 +20,7 @@ local INT8_TABLE  = {};
 local rop, p;
 ---------------------
 
---- @class int8
---- @field __table_number boolean
---- @field value number
---- @field TYPE 'int8'
---- @field BIT_SIZE number
---- @field AND fun(self:int8, mask: table|number): number
---- @field NAND fun(self:int8, mask: table|number): number
---- @field OR fun(self:int8, mask: table|number): number
---- @field XOR fun(self:int8, mask: table|number): number
---- @field NOT fun(self:int8, mask: table|number): number
---- @field RIGHT fun(self:int8, offset: table|number): number
---- @field LEFT fun(self:int8, offset: table|number): number
---- @field getValue fun(self:int8): number
----
 --- A readonly class that packages and handles arithmatic operations for unsigned int8.
-
 local int8_meta   = {
     --________ METHODS ________--
     __add      = function(t, other) return int8(t.value + getValue(other)) end,
@@ -82,11 +67,6 @@ end
 --- @return int8
 int8 = function(value) return INT8_TABLE[((value + 127) % 255) + 1] end
 
---- @class Int8
---- @field TYPE 'int8'
---- @field BIT_SIZE number
---- @field MIN_SIZE number
---- @field MAX_SIZE number
 Int8 = {
     TYPE     = 'int8',
     BIT_SIZE = 8,
