@@ -8,6 +8,34 @@ local readonly = require 'asledgehammer/util/readonly';
 
 local TimeUtils = {};
 
+--- Pads values as zero-padded strings.
+---
+--- @param value string|number
+--- @param length any
+--- @return unknown
+function TimeUtils.zeroPad(value, length)
+    local str = tostring(value);
+    while #str < length do str = '0' .. str end
+    return str;
+end
+
+--- Converts a millisecond UNIX timestamp to a human-readable ISO-8601 formatted date string.
+--- @param time number The time in milliseconds. (use `getTimeInMillis()`)
+---
+--- @return string date The formatted date as a string.
+function TimeUtils.toISO8601(time)
+    local d = os.date("*t", Math.floor(time / 1000));
+    local year = tostring(d.year);
+    local month = TimeUtils.zeroPad(d.month, 2);
+    local day = TimeUtils.zeroPad(d.day, 2);
+    local hour = TimeUtils.zeroPad(d.hour, 2);
+    local min = TimeUtils.zeroPad(d.min, 2);
+    local sec = TimeUtils.zeroPad(d.sec, 2);
+    local msec = tostring(time);
+    msec = string.sub(msec, #msec - 3);
+    return year .. '-' .. month .. '-' .. day .. 'T' .. hour .. ':' .. min .. ':' .. sec .. '.' .. msec .. 'Z';
+end
+
 --- Delays a task by x ticks.
 ---
 --- @param ticks number The amount of ticks delayed before invoking the callback. <br>NOTE: If ticks is zero then the callback is invoked immediately.
