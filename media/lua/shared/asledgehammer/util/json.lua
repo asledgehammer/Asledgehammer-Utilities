@@ -382,8 +382,11 @@ end
 ---
 --- @return boolean result True if valid JSON.
 function json.validate(str)
-    local result = pcall(function () json.parse(str) end);
-    return result;
+    -- This is quicker to check for stuff like decrypted JSON.
+    if not string.match(str, '%{', 1) and not string.match(str, '%[', 1) then
+        return false;
+    end
+    return pcall(function () json.parse(str) end);
 end
 
 return readonly(json);
