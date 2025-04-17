@@ -24,6 +24,8 @@
 --
 
 local readonly = require 'asledgehammer/util/readonly';
+--- @type fun(str: string): boolean
+local validate = (require 'asledgehammer/util/json_validate').validate;
 
 local json = { _version = "0.1.2" }
 
@@ -382,11 +384,7 @@ end
 ---
 --- @return boolean result True if valid JSON.
 function json.validate(str)
-    -- This is quicker to check for stuff like decrypted JSON.
-    if not string.match(str, '%{', 1) and not string.match(str, '%[', 1) then
-        return false;
-    end
-    return pcall(function () json.parse(str) end);
+    return validate(str);
 end
 
 return readonly(json);
