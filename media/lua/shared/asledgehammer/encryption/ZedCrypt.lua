@@ -24,6 +24,11 @@ local function expand(str)
     return a;
 end
 
+--- @class ZedCrypt
+--- @field encrypt fun(data: string, key: string): string
+--- @field decrypt fun(data: string, key: string): string
+--- @field encryptAsync fun(data: string, key: string, steps: number): string
+--- @field decryptAsync fun(data: string, key: string, steps: number): string
 local ZedCrypt = {};
 
 --- @param data string

@@ -8,6 +8,8 @@
 
 local readonly = require 'asledgehammer/util/readonly';
 
+local DEBUG = false;
+
 -- (Network only)
 local IS_CLIENT = isClient();
 local IS_SERVER = isServer();
@@ -38,7 +40,7 @@ local function AddFirst(event, callback)
     --- callbacks: ArrayList<function>
     local callbacks = getJavaField(LuaEventManager.AddEvent(event), 'callbacks');
     if not callbacks then
-        print('Cannot Event.AddFirst(): Event doesn\'t exist: ' .. tostring(event));
+        print(string.format('Cannot Event.AddFirst(): Event doesn\'t exist: %s', tostring(event)));
     end
     callbacks:add(0, callback);
 end
@@ -52,9 +54,37 @@ function module.addClientListener(func)
     table.insert(poolClient, func);
 end
 
+--- @param func fun(module: string, command: string, player: IsoPlayer, args: any): void
+function module.removeClientListener(func)
+    local index = 0;
+    for i, f in ipairs(poolClient) do
+        if f == func then
+            index = i;
+            break;
+        end
+    end
+    if index ~= 0 then
+        table.remove(poolClient, index);
+    end
+end
+
 --- @param func fun(module: string, command: string, args: any): void
 function module.addServerListener(func)
     table.insert(poolServer, func);
+end
+
+--- @param func fun(module: string, command: string, args: any): void
+function module.removeServerListener(func)
+    local index = 0;
+    for i, f in ipairs(poolServer) do
+        if f == func then
+            index = i;
+            break;
+        end
+    end
+    if index ~= 0 then
+        table.remove(poolServer, index);
+    end
 end
 
 Events.OnGameBoot.Add(function()
@@ -91,7 +121,12 @@ if IS_CLIENT then
                 triggered = true;
                 triggerEvent('OnLuaNetworkConnected');
             end
-            Events.OnTickEvenPaused.Remove(a);
+
+            if not DEBUG then
+                Events.OnTickEvenPaused.Remove(a);
+            else
+                print(string.format('# OnServerCommand: %s.%s', m, command));
+            end
         end);
         Events.OnTickEvenPaused.Add(a);
     end);
@@ -100,7 +135,13 @@ elseif IS_SERVER then
         module.addClientListener(function(m, command, player)
             if m ~= 'asledgehammer_utilities' then return end
             if command ~= 'ping' then return end
-            triggerEvent('OnLuaNetworkConnected', player);
+            if not triggered then
+                triggered = true;
+                triggerEvent('OnLuaNetworkConnected', player);
+            end
+            if DEBUG then
+                print(string.format('# OnClientCommand: %s %s.%s', player:getUsername(), m, command));
+            end
             sendServerCommand(player, 'asledgehammer_utilities', 'pong', {});
         end);
     end);
@@ -110,7 +151,7 @@ Events.OnLuaNetworkConnected.Add(
 --- @param player? IsoPlayer
     function(player)
         if player then
-            print('### LUA NETWORK CONNECTION (Player "' .. player:getUsername() .. '") ###');
+            print(string.format('### LUA NETWORK CONNECTION (Player "%s") ###', player:getUsername()));
         else
             print('### LUA NETWORK CONNECTION ###');
         end
